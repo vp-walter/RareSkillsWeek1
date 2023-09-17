@@ -20,11 +20,19 @@ ERC 777 also rethinks the 'approve', workflow by implementing operators who can 
 The registry design is overly complicated and the callback hooks make the token vulnerable to reentrancy attacks. There are common protections against this but they also add to gas costs.
 
 #### Why was ERC 1363 introduced?
-The ERC 1363 Token standard similarly allows you to call functions when transfers are received or when approval is received. Compared to ERC 777 it does not require the registry of interfaces and it does not fallback to a conventional transfer in the event the receiver functions are not present.
+The ERC 1363 Token standard similarly allows you to call functions when transfers are received or when approval is received. Compared to ERC 777 it does not require the registry of interfaces.
 
 
 ## Question 2: Why does the SafeERC20 program exist and when should it be used?
+SafeERC20 provides a client wrapper that aims to mitigate some issues with ERC20 function calls. 
 
+The wrapper first ensures the address being called is a smart contract by checking the code size of the address. 
+
+Because ERC20 'transfer' and 'transferFrom' functions do not revert, the wrapper's helper functions check that the contract has been called successfully and reverting. The helpers also decode the returndata and check for the boolean value.
+
+To prevent the double-spending problem with ERC20 allowance changes, the wrapper has helper functions to increase and decrease allowance instead. These functions get the active allowance balance and add/subtract an amount.
+
+The helper functions for transfer, transferFrom and approve are prepended with 'safe': 'safeTransfer', 'safeTransferFrom', and 'safeIncreaseAllowance'.
 
 
 ## Token with Sanctions
